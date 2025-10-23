@@ -9,10 +9,12 @@ class Settings(BaseSettings):
     Класс для загрузки настроек из .env файла.
     """
     DATABASE_URL: str
+    alembic_database_url: str | None = None
 
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
+        extra = "ignore"
 
 
 settings = Settings()

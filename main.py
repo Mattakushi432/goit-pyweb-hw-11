@@ -1,13 +1,15 @@
 from fastapi import FastAPI
+from app.router import router as contacts_router
 
-app = FastAPI()
+app = FastAPI(
+    title="Contacts API",
+    description="API для управления телефонной книгой",
+    version="1.0.0"
+)
 
+
+app.include_router(contacts_router, prefix="/api")
 
 @app.get("/")
-async def root():
-    return {"message": "Hello World"}
-
-
-@app.get("/hello/{name}")
-async def say_hello(name: str):
-    return {"message": f"Hello {name}"}
+def read_root():
+    return {"message": "Welcome to Contacts API!"}

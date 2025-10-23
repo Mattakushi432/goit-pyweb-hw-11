@@ -1,9 +1,9 @@
 fastapi
 uvicorn[standard]
-sqlalchemy[asyncio]
+sqlalchemy[asyncio]>=2.0,<2.1
 asyncpg
 psycopg2-binary
 pydantic
 pydantic-settings
 email-validator
-alembic
+alembic==1.13.1
