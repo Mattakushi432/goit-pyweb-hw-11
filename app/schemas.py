@@ -1,12 +1,9 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from datetime import date
 from typing import Optional
 
 
 class ContactBase(BaseModel):
-    """
-    Базовая схема Pydantic для контакта.
-    """
     first_name: str
     last_name: str
     email: EmailStr
@@ -14,19 +11,10 @@ class ContactBase(BaseModel):
     birthday: date
     additional_data: Optional[str] = None
 
-
 class ContactCreate(ContactBase):
-    """
-    Схема для создания нового контакта (используется в POST).
-    """
     pass
 
-
 class ContactUpdate(BaseModel):
-    """
-    Схема для обновления контакта (используется в PUT/PATCH).
-    Все поля опциональны.
-    """
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     email: Optional[EmailStr] = None
@@ -34,14 +22,27 @@ class ContactUpdate(BaseModel):
     birthday: Optional[date] = None
     additional_data: Optional[str] = None
 
-
 class ContactResponse(ContactBase):
-    """
-    Схема для возврата данных о контакте (используется в GET).
-    Включает id.
-    """
     id: int
+    user_id: int
 
     class Config:
-        from_attributes = True  # Pydantic v2
-        # orm_mode = True # Pydantic v1
+        from_attributes = True
+
+
+class UserCreate(BaseModel):
+    email: EmailStr
+    password: str = Field(min_length=6)
+
+class UserResponse(BaseModel):
+    id: int
+    email: EmailStr
+    # Ми не повертаємо пароль!
+
+    class Config:
+        from_attributes = True
+
+class Token(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str = "bearer"

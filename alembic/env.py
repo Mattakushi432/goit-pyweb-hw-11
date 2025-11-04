@@ -13,9 +13,21 @@ from app.database import settings
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
-# Ensure Alembic uses the same database URL as the application
-if settings and getattr(settings, 'DATABASE_URL', None):
-    config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
+# Ensure Alembic uses a synchronous database URL (convert from async if needed)
+db_url = None
+if settings:
+    db_url = getattr(settings, 'alembic_database_url', None) or getattr(settings, 'DATABASE_URL', None)
+
+if db_url:
+    # Convert async driver URLs to a synchronous equivalent for Alembic
+    # Common case: 'postgresql+asyncpg' -> 'postgresql+psycopg2' (psycopg2-binary is installed)
+    if db_url.startswith("postgresql+asyncpg"):
+        db_url = db_url.replace("postgresql+asyncpg", "postgresql+psycopg2", 1)
+    elif db_url.startswith("postgresql+aiopg"):
+        db_url = db_url.replace("postgresql+aiopg", "postgresql+psycopg2", 1)
+    elif db_url.startswith("sqlite+aiosqlite"):
+        db_url = db_url.replace("sqlite+aiosqlite", "sqlite", 1)
+    config.set_main_option("sqlalchemy.url", db_url)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
