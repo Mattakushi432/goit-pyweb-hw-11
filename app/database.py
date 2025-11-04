@@ -19,15 +19,12 @@ class Settings(BaseSettings):
 
 settings = Settings()
 
-# Создаем асинхронный "движок"
 engine = create_async_engine(settings.DATABASE_URL)
 
-# Создаем фабрику асинхронных сессий
 AsyncSessionLocal = async_sessionmaker(
     engine, class_=AsyncSession, expire_on_commit=False
 )
 
-# Базовый класс для наших моделей SQLAlchemy
 Base = declarative_base()
 
 
