@@ -69,7 +69,7 @@ async def update_contact(
         db: AsyncSession, contact_id: int, contact_update: ContactUpdate, user: User
 ) -> Optional[Contact]:
     """Оновлює контакт, якщо він належить користувачу."""
-    db_contact = await get_contact(db, contact_id, user)  # Використовує вже захищену функцію
+    db_contact = await get_contact(db, contact_id, user)
     if db_contact:
         update_data = contact_update.model_dump(exclude_unset=True)
         for key, value in update_data.items():
@@ -141,7 +141,20 @@ async def confirm_email(email: str, db: AsyncSession) -> None:
     """Підтверджує електронну пошту користувача, встановлюючи прапорець confirmed = True."""
     user = await get_user_by_email(db, email)
     if user:
-        # Важливо: якщо ти не використовуєш Model.username, тобі, можливо, знадобиться перевірка user.confirmed
-        # (хоча це робиться в роутері, краще додати тут перевірку на None)
         user.confirmed = True
         await db.commit()
+
+async def update_avatar_url(email: str, url: str, db: AsyncSession) -> Optional[User]:
+    """Оновлює посилання на аватар користувача."""
+    user = await get_user_by_email(db, email)
+    if user:
+        user.avatar = url
+        await db.commit()
+        await db.refresh(user)
+    return user
+
+async def update_password(user: User, hashed_password: str, db: AsyncSession) -> None:
+    """Оновлює хешований пароль користувача."""
+    user.hashed_password = hashed_password
+    await db.commit()
+    await db.refresh(user)

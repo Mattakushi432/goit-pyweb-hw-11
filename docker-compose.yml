@@ -1,6 +1,25 @@
-redis:
-  image: redis:7-alpine
-  ports:
-    - "6379:6379"
-  volumes:
-    - redis_data:/data
+version: '3.8'
+
+services:
+  db:
+    environment:
+      - DATABASE_URL=postgresql://user:11111@localhost:5432/GoIT
+  redis:
+    image: redis:7-alpine
+    container_name: notes_redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+
+  web:
+    depends_on:
+      - db
+      - redis
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+
+volumes:
+  redis_data:

@@ -12,3 +12,6 @@ fastapi-limiter
 cloudinary
 python-dotenv
 redis
+pytest
+pytest-asyncio
+httpx

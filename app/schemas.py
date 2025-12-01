@@ -46,3 +46,9 @@ class Token(BaseModel):
     access_token: str
     refresh_token: str
     token_type: str = "bearer"
+
+class RequestReset(BaseModel):
+    email: EmailStr
+
+class NewPassword(BaseModel):
+    password: str = Field(min_length=6, max_length=256)

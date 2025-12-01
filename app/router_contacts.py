@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
+from fastapi_limiter.depends import RateLimiter
 
 from app import crud, schemas
 from app.database import get_db
@@ -11,19 +12,26 @@ get_current_user = auth_service.get_current_user
 
 router = APIRouter(prefix="/contacts", tags=["Contacts"])
 
-@router.post("/", response_model=schemas.ContactResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/",
+    response_model=schemas.ContactResponse,
+    status_code=status.HTTP_201_CREATED,
+    # Додаємо залежність RateLimiter: 10 запитів за 60 секунд
+    dependencies=[Depends(RateLimiter(times=10, seconds=60))]
+)
 async def create_contact(
-    contact: schemas.ContactCreate,
+    contact: schemas.ContactCreate, # Змінено ім'я з contact_data на contact для відповідності існуючому коду
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user) # ЗАХИСТ
 ):
+    # Змінено поле contact.phone_number на contact.phone для відповідності твоєму коду
     db_contact = await crud.get_contact_by_email_or_phone(db, email=contact.email, phone=contact.phone, user=current_user)
     if db_contact:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Email or phone number already registered for this user"
         )
-    return await crud.create_contact(db=db, contact=contact, user=current_user) # Передаємо user
+    return await crud.create_contact(db=db, contact=contact, user=current_user)
 
 
 @router.get("/", response_model=List[schemas.ContactResponse])
@@ -80,7 +88,7 @@ async def update_contact(
     db_contact = await crud.update_contact(db, contact_id=contact_id, contact_update=contact, user=current_user) # Передаємо user
     if db_contact is None:
         raise HTTPException(
-            status_code=status.HTTP_44_NOT_FOUND, detail="Contact not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Contact not found"
         )
     return db_contact
 
