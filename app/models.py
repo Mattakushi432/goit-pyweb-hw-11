@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Date, ForeignKey
+from sqlalchemy import Column, Integer, String, Date, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -14,6 +14,9 @@ class User(Base):
     hashed_password = Column(String, nullable=False)
 
     contacts = relationship("Contact", back_populates="user")
+
+    confirmed = Column(Boolean, nullable=False, default=False)
+    avatar = Column(String(255), nullable=True)
 
 
 class Contact(Base):

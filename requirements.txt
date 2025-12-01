@@ -6,4 +6,9 @@ psycopg2-binary
 pydantic
 pydantic-settings
 email-validator
-alembic==1.13.1
+alembic
+fastapi-mail
+fastapi-limiter
+cloudinary
+python-dotenv
+redis

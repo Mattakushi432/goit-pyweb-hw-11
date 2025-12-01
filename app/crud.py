@@ -136,3 +136,12 @@ async def get_upcoming_birthdays(db: AsyncSession, user: User) -> List[Contact]:
 
     result = await db.execute(select(Contact).where(final_condition))
     return result.scalars().all()
+
+async def confirm_email(email: str, db: AsyncSession) -> None:
+    """Підтверджує електронну пошту користувача, встановлюючи прапорець confirmed = True."""
+    user = await get_user_by_email(db, email)
+    if user:
+        # Важливо: якщо ти не використовуєш Model.username, тобі, можливо, знадобиться перевірка user.confirmed
+        # (хоча це робиться в роутері, краще додати тут перевірку на None)
+        user.confirmed = True
+        await db.commit()

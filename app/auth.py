@@ -47,6 +47,21 @@ class AuthService:
         """Створює хеш пароля."""
         return pwd_context.hash(password)
 
+    def create_email_token(data: dict):
+        to_encode = data.copy()
+        expire = datetime.utcnow() + timedelta(days=7)  # Токен діє 7 днів
+        to_encode.update({"iat": datetime.utcnow(), "exp": expire})
+        token = jwt.encode(to_encode, settings.secret_key, algorithm=settings.algorithm)
+        return token
+
+    async def get_email_from_token(token: str):
+        try:
+            payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
+            email = payload.get("sub")
+            return email
+        except JWTError:
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Invalid token")
+
     async def create_token(self, data: dict, expires_delta: timedelta) -> str:
         """Створює JWT токен (access або refresh)."""
         to_encode = data.copy()
